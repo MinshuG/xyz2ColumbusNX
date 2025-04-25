@@ -5,7 +5,7 @@ A Python-based graphical tool for converting between molecular geometry file for
 - [Columbus](https://gitlab.com/columbus-program-system/columbus)/[NewtonX](https://gitlab.com/light-and-molecules/newtonx) geom format/ SHARC (uses same format I think)
 
 ## Screenshot
-<img src="screenshot.png" alt="Screenshot of the application" width="600"/>
+<img src="./Screenshot.png" alt="Screenshot of the application" width="600"/>
 
 ## Features
 
