@@ -45,6 +45,10 @@ class XYZColumbusConverter(tk.Tk):
         ttk.Radiobutton(xyz_unit_frame, text="Angstrom", variable=self.xyz_unit_var, value="Angstrom").pack(side=tk.LEFT, padx=5)
         ttk.Radiobutton(xyz_unit_frame, text="Atomic Units", variable=self.xyz_unit_var, value="AU").pack(side=tk.LEFT, padx=5)
         
+        # Add Copy All button for XYZ editor
+        xyz_copy_button = ttk.Button(xyz_unit_frame, text="Copy All", command=lambda: self.copy_all(self.xyz_text))
+        xyz_copy_button.pack(side=tk.RIGHT, padx=5)
+        
         # XYZ Editor
         self.xyz_text = tk.Text(left_frame, wrap=tk.NONE)
         self.xyz_text.pack(fill=tk.BOTH, expand=True)
@@ -53,6 +57,14 @@ class XYZColumbusConverter(tk.Tk):
         xyz_scroll_x = ttk.Scrollbar(left_frame, orient="horizontal", command=self.xyz_text.xview)
         xyz_scroll_x.pack(side=tk.BOTTOM, fill=tk.X)
         self.xyz_text.configure(yscrollcommand=xyz_scroll_y.set, xscrollcommand=xyz_scroll_x.set)
+        
+        # Add button frame for Columbus editor
+        col_button_frame = ttk.Frame(right_frame)
+        col_button_frame.pack(fill=tk.X, pady=5)
+        
+        # Add Copy All button for Columbus editor
+        col_copy_button = ttk.Button(col_button_frame, text="Copy All", command=lambda: self.copy_all(self.col_text))
+        col_copy_button.pack(side=tk.RIGHT, padx=5)
         
         # Columbus Editor
         self.col_text = tk.Text(right_frame, wrap=tk.NONE)
@@ -89,6 +101,14 @@ class XYZColumbusConverter(tk.Tk):
         self.status_bar = ttk.Label(self, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
         self.status_var.set("Ready")
+
+    def copy_all(self, text_widget):
+        """Copy all text from the specified text widget to clipboard"""
+        self.clipboard_clear()
+        text_content = text_widget.get(1.0, tk.END).rstrip()
+        self.clipboard_append(text_content)
+        self.update()  # Required to finalize clipboard changes
+        self.status_var.set("Content copied to clipboard")
 
     def select_all(self, event):
         """Select all text in the text widget that triggered the event"""
@@ -203,16 +223,26 @@ class XYZColumbusConverter(tk.Tk):
                     # If no letters, it might be just a number (index)
                     if len(parts) > 1 and any(c.isalpha() for c in parts[1]):
                         atom_symbol = parts[1]
-                        x, y, z = float(parts[2]), float(parts[3]), float(parts[4])
+                        try:
+                            x, y, z = float(parts[2]), float(parts[3]), float(parts[4])
+                        except (IndexError, ValueError):
+                            messagebox.showerror("Error", f"Incomplete coordinate data in line:\n{line}")
+                            return
                     else:
-                        messagebox.showerror("Error", f"Cannot determine atom symbol in line: {line}")
+                        # Failed to determine atom symbol — show a helpful arrow
+                        error_line = line.rstrip()
+                        pointer = " " * error_line.find(parts[0]) + "^" * len(parts[0])
+                        messagebox.showerror(
+                            "Error",
+                            f"Cannot determine atom symbol in line:\n{error_line}\n{pointer}\nMake sure the format (XMOL XYZ) is correct."
+                        )
                         return
                 else:
                     # Extract only the element symbol (letters) if mixed with numbers
                     element = ''.join(c for c in atom_symbol if c.isalpha())
                     atom_symbol = element
                     x, y, z = float(parts[1]), float(parts[2]), float(parts[3])
-                
+
                 # Convert from Angstrom to AU if needed
                 if self.xyz_unit_var.get() == "Angstrom":
                     x *= self.ANGSTROM_TO_AU

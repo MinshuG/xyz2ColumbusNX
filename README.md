@@ -2,7 +2,10 @@
 
 A Python-based graphical tool for converting between molecular geometry file formats:
 - XYZ format (standard molecular geometry format) 
-- [Columbus](https://gitlab.com/columbus-program-system/columbus)/[NewtonX](https://gitlab.com/light-and-molecules/newtonx) geom format
+- [Columbus](https://gitlab.com/columbus-program-system/columbus)/[NewtonX](https://gitlab.com/light-and-molecules/newtonx) geom format/ SHARC (uses same format I think)
+
+## Screenshot
+<img src="screenshot.png" alt="Screenshot of the application" width="600"/>
 
 ## Features
 
